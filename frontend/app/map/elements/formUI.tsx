@@ -18,7 +18,8 @@ interface FormUIProps {
 }
 
 export default function FormUI({ onSubmit }: FormUIProps) {
-  const [budget, setBudget] = useState(1000)
+  const [budget, setBudget] = useState(2000)
+  const [budgetError, setBudgetError] = useState(false)
   const [moveInDate, setMoveInDate] = useState<Date>()
   const [familySize, setFamilySize] = useState(1)
   const [selectedAmenities, setSelectedAmenities] = useState<string[]>([])
@@ -35,6 +36,11 @@ export default function FormUI({ onSubmit }: FormUIProps) {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
+    if (budget < 2000) {
+      setBudgetError(true)
+      return
+    }
+    setBudgetError(false)
     onSubmit({
       budget: budget.toString(),
       amenities: selectedAmenities,
@@ -60,11 +66,19 @@ export default function FormUI({ onSubmit }: FormUIProps) {
                   max={5000}
                   step={100}
                   value={[budget]}
-                  onValueChange={(value) => setBudget(value[0])}
+                  onValueChange={(value) => {
+                    setBudget(value[0])
+                    setBudgetError(value[0] < 3000)
+                  }}
                   className="flex-grow"
                 />
                 <span className="font-semibold">${budget}</span>
               </div>
+              {budgetError && (
+                <p className="text-red-500 text-sm mt-1">
+              You forget where are you searching? It is San Francisco, you can't put less than $3000.
+                </p>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -124,7 +138,7 @@ export default function FormUI({ onSubmit }: FormUIProps) {
               </Popover>
             </div>
 
-            <Button type="submit" className="w-full mt-6">
+            <Button type="submit" className="w-full mt-6" disabled={budgetError}>
               Search Apartments
             </Button>
           </div>

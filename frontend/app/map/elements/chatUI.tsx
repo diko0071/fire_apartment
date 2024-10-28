@@ -39,6 +39,7 @@ export default function ChatInterface({
   loadingSteps
 }: ChatInterfaceProps) {
   const [input, setInput] = useState('')
+  const [budgetWarning, setBudgetWarning] = useState(false)
 
   const handleSend = (e: React.FormEvent) => {
     e.preventDefault()
@@ -48,20 +49,30 @@ export default function ChatInterface({
     }
   }
 
-  const renderAddressReview = () => {
-    if (loadingSteps.length > 0) {
-      return (
-        <div className="mb-4 p-2 rounded-lg bg-muted">
-          {loadingSteps.map((step, index) => (
-            <div key={index} className="flex items-center mb-2">
-              <Check className="mr-2 h-4 w-4 text-green-500" />
-              <span className="text-black">{step}</span>
-            </div>
-          ))}
-        </div>
-      )
+  const handleFormSubmit = (data: ClarifyRequirementsParams) => {
+    if (parseInt(data.budget) < 2000) {
+      setBudgetWarning(true)
+    } else {
+      setBudgetWarning(false)
+      onFormSubmit(data)
     }
-    return null
+  }
+
+  const renderAddressReview = () => {
+    return (
+      <div className="mb-4 p-2 rounded-lg bg-muted">
+        {loadingSteps.map((step, index) => (
+          <div key={index} className="flex items-center mb-2">
+            {index === loadingSteps.length - 1 && isLoading ? (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            ) : (
+              <Check className="mr-2 h-4 w-4 text-green-500" />
+            )}
+            <span className="text-black">{step}</span>
+          </div>
+        ))}
+      </div>
+    )
   }
 
   const renderApiResults = () => {
@@ -101,7 +112,7 @@ export default function ChatInterface({
         ))}
         {renderAddressReview()}
         {renderApiResults()}
-        {showForm && <FormUI onSubmit={onFormSubmit} />}
+        {showForm && <FormUI onSubmit={handleFormSubmit} />}
       </ScrollArea>
       <form onSubmit={handleSend} className="mt-4 flex">
         <Input
